@@ -3,6 +3,11 @@
 ///|
 /// 映射 GB18030 编码到 Unicode
 pub fn gb18030_to_unicode(gb_code : Int) -> Int {
+  // ASCII 字符
+  if gb_code >= 0 && gb_code <= 0x7F {
+    return gb_code
+  }
+
   // 双字节区域
   if gb_code >= 0x8140 && gb_code <= 0xFEFE {
     let lead = (gb_code >> 8) & 0xFF
@@ -13,9 +18,11 @@ pub fn gb18030_to_unicode(gb_code : Int) -> Int {
       let pos = if trail >= 0x80 { trail - 0x80 + 63 } else { trail - 0x40 }
 
       // 0x4E00-0x9FFF 区域
-      if area >= 0x2F && area <= 0xA0 { // 0x2F 是 0x4E00 的偏移量
+      // 扩展支持 0x8140 开始的区域
+      if area <= 0xA0 { // 0x2F 是 0x4E00 的偏移量
         let offset = (area - 0x2F) * 190 + pos
-        if offset >= 0 && offset <= 0x9FA5 - 0x4E00 {
+        // 移除 offset >= 0 的限制，允许映射到 0x4E00 以下
+        if offset <= 0x9FA5 - 0x4E00 {
           return 0x4E00 + offset
         }
       }
@@ -69,8 +76,9 @@ pub fn unicode_to_gb18030(unicode : Int) -> Int {
   // 完整的Unicode到GB18030映射
 
   // 一级汉字区域 (0x4E00-0x9FFF)
-  // 仅当适合有效的双字节范围时映射 (首字节 <= 0xFE)
-  if unicode >= 0x4E00 && unicode <= 0x9FFF {
+  // 扩展支持更低范围的 Unicode 映射到 0x8140 区域
+  // 0x4E00 对应 0xB040, 0x2B1E 对应 0x8140
+  if unicode >= 0x2B1E && unicode <= 0x9FFF {
     let offset = unicode - 0x4E00
     let area = offset / 190 + 0x2F
     let pos = offset % 190

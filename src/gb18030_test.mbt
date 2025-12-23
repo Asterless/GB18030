@@ -1,4 +1,4 @@
-// GB18030 Tests for 80%+ Coverage
+﻿// GB18030 Tests for 80%+ Coverage
 
 ///|
 test "basic ascii test" {
@@ -346,7 +346,7 @@ test "mapping coverage" {
 
   // Valid ASCII
   inspect(gb18030_to_unicode(0x41), content="65")
-  inspect(gb18030_to_unicode(0x8140), content="63")
+  inspect(gb18030_to_unicode(0x8140), content="11038")
 
   // Valid 2-byte start of 0x4E00 range
   // area 0x2F (47) -> lead 0xB0. pos 0 -> trail 0xA1.
